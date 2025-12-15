@@ -1,11 +1,7 @@
 <?php
 session_start();
 include 'config.php';
-//ログインしていなければ強制送還
-if (!isset($_SESSION["username"])) { 
-    __________; 
-    exit; 
-}
+if (!isset($_SESSION["username"])) { header("Location: index.php"); exit; }
 
 $username = $_SESSION["username"];
 
@@ -13,20 +9,13 @@ $username = $_SESSION["username"];
 $edit_mode = false;
 $edit_note = null;
 if (isset($_GET['edit'])) {
-  //編集したいメモのメモIDを取得
   $edit_id = intval($_GET['edit']);
-  //DBから編集したいメモだけを取り出す
-  $stmt = $conn->prepare('__________');
-  //プレースホルダに変数を入れる
+  $stmt = $conn->prepare("SELECT id, title, content FROM notes WHERE id=? AND username=?");
   $stmt->bind_param("is", $edit_id, $username);
   $stmt->execute();
-  //実行結果を取得
-  $res = $stmt->__________();
-  //DBから取得したメモ1行を配列として取り出す
-  if ($row = $res->__________()) {
-   //編集モードのフラグ
+  $res = $stmt->get_result();
+  if ($row = $res->fetch_assoc()) {
     $edit_mode = true;
-     //編集対象のメモのデータをフォームに埋め込むために保存
     $edit_note = $row;
   }
   $stmt->close();
@@ -34,57 +23,39 @@ if (isset($_GET['edit'])) {
 
 // ----- 追加／更新／削除の処理 -----
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  // 追加ボタンが押された時
+  // 追加
   if (isset($_POST['create'])) {
-    //タイトル入力を受け取る
     $title = trim($_POST["title"] ?? "");
-    //内容を受け取る
     $content = trim($_POST["content"] ?? "");
-    //タイトルと内容がちゃんと書かれているか確認
     if ($title !== "" && $content !== "") {
-      //notes テーブルに1件追加するSQLを用意
-      $stmt = $conn->prepare('__________');
-      //値をSQLに埋め込む
-      $stmt->bind_param('__________');
-      //実行
+      $stmt = $conn->prepare("INSERT INTO notes (username, title, content) VALUES (?, ?, ?)");
+      $stmt->bind_param("sss", $username, $title, $content);
       $stmt->execute();
       $stmt->close();
     }
-    //ページを更新
     header("Location: notes.php"); exit;
   }
 
-  // 更新するボタンが押された時
+  // 更新
   if (isset($_POST['update'])) {
-    //更新したいメモのメモIDを受け取る
     $id = intval($_POST["id"] ?? 0);
-    //タイトルと内容を受け取る
     $title = trim($_POST["title"] ?? "");
     $content = trim($_POST["content"] ?? "");
-    //IDが正しい&タイトルと内容が書かれているか確認
-    if ('____________________') {
-      //1件更新するSQLの準備
-      $stmt = $conn->prepare('__________');
-      //値を埋め込む
-      $stmt->bind_param('__________');
-      //更新実行
+    if ($id > 0 && $title !== "" && $content !== "") {
+      $stmt = $conn->prepare("UPDATE notes SET title=?, content=? WHERE id=? AND username=?");
+      $stmt->bind_param("ssis", $title, $content, $id, $username);
       $stmt->execute();
       $stmt->close();
     }
     header("Location: notes.php"); exit;
   }
 
-  // 削除ボタンが押されたか確認
+  // 削除
   if (isset($_POST['delete_id'])) {
-    //削除したいメモのIDを取得
     $delete_id = intval($_POST['delete_id']);
-    //IDが正しいときだけ処理を実行
     if ($delete_id > 0) {
-      //IDとユーザが一致するメモを取得
-      $stmt = $conn->prepare('__________');
-      //値を埋め込む
-      $stmt->bind_param('__________');
-      //実行→削除される
+      $stmt = $conn->prepare("DELETE FROM notes WHERE id=? AND username=?");
+      $stmt->bind_param("is", $delete_id, $username);
       $stmt->execute();
       $stmt->close();
     }
@@ -92,12 +63,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   }
 }
 
-//ログインしている人のメモだけ、新しい順に取得
-$stmt = $conn->prepare('__________');
-//プレースホルダにユーザ名をセット
-$stmt->bind_param('__________');
+// ----- 一覧取得 -----
+$stmt = $conn->prepare("SELECT id, title, content, created_at FROM notes WHERE username=? ORDER BY created_at DESC");
+$stmt->bind_param("s", $username);
 $stmt->execute();
-//メモ一覧を取得
 $notes = $stmt->get_result();
 ?>
 <!DOCTYPE html>

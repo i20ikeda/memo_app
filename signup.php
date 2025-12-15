@@ -1,16 +1,10 @@
 <?php
 include 'config.php';
-//登録ボタンが押されたら、処理開始
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  //ユーザ名を受け取る
   $username = $_POST["username"];
-  //パスワードをハッシュ化
-  $password = password_hash('__________');
-  //SQLの準備
-  $stmt = $conn->prepare('__________');
-  //パラメータ(ユーザ名、パスワード)を埋め込む
-  $stmt->bind_param(('__________'));
-  //成功したら、ログイン画面に遷移
+  $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
+  $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+  $stmt->bind_param("ss", $username, $password);
   if ($stmt->execute()) header("Location: index.php");
   else $error = "登録に失敗しました。";
 }

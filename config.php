@@ -1,11 +1,10 @@
 <?php
 $host = 'localhost';
 $user = 'webuser';
-$pass = '(設定したパスワード)';
+$pass = '(任意のパスワード)';
 $dbname = 'lamp_app';
 
-//DBへ接続
-$conn = new mysqli('__________');
+$conn = new mysqli($host, $user, $pass, $dbname);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
