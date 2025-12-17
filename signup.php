@@ -9,6 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   else $error = "登録に失敗しました。";
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>

@@ -3,22 +3,16 @@ session_start();
 include 'config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    //入力されたユーザネームとパスワードを格納
     $username = $_POST["username"];
     $password = $_POST["password"];
 
-    //指定した username のユーザをDBから探す SQL の準備
     $stmt = $conn->prepare("SELECT * FROM users WHERE username=?");
     $stmt->bind_param("s", $username);
-    //SQl処理の実行
     $stmt->execute();
     
     $result = $stmt->get_result();
-    //データベースからとってきたユーザ情報を1件取り出す
     if ($row = $result->fetch_assoc()) {
-        //入力されたパスワードと DB のハッシュ化パスワードを比較する
         if (password_verify($password, $row["password"])) {
-            //ログイン状態を維持するために $_SESSION["username"] にユーザ名を保存
             $_SESSION["username"] = $username;
             //notes.phpへ遷移
             header("Location: notes.php");

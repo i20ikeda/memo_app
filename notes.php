@@ -1,11 +1,14 @@
 <?php
 session_start();
 include 'config.php';
-if (!isset($_SESSION["username"])) { header("Location: index.php"); exit; }
+if (!isset($_SESSION["username"])) { 
+  header("Location: index.php"); 
+  exit;
+}
 
 $username = $_SESSION["username"];
 
-// ----- 編集対象の取得（?edit=ID が来たときにフォームを編集モードにする） -----
+//編集対象の取得
 $edit_mode = false;
 $edit_note = null;
 if (isset($_GET['edit'])) {
@@ -21,7 +24,7 @@ if (isset($_GET['edit'])) {
   $stmt->close();
 }
 
-// ----- 追加／更新／削除の処理 -----
+//追加／更新／削除の処理
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
   // 追加
   if (isset($_POST['create'])) {
@@ -63,12 +66,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   }
 }
 
-// ----- 一覧取得 -----
+//一覧取得
 $stmt = $conn->prepare("SELECT id, title, content, created_at FROM notes WHERE username=? ORDER BY created_at DESC");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $notes = $stmt->get_result();
 ?>
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
