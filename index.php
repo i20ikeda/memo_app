@@ -20,8 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else $error = "パスワードが違います。";
     } else $error = "ユーザーが存在しません。";
 }
-
 ?>
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
