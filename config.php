@@ -2,7 +2,7 @@
 $host = 'localhost';
 $user = 'webuser';
 $pass = '(任意のパスワード)';
-$dbname = 'lamp_app';
+$dbname = 'memo_app';
 
 //データベースへログイン
 $conn = new mysqli($host, $user, $pass, $dbname);
